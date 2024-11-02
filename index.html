@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA - P2</title>
+</head>
+<body style="justify-items: center;">
+    <h1>Proyecto 2 IA</h1>
+    <h2>Ronaldo Javier Posadas Guerra</h2>
+
+    <label for="modelSelect">Selecciona el Modelo de ML:</label>
+    <select id="modelSelect">        
+        <option value="linear">Linear Regression</option>
+        <option value="polynomial">Polynomial Regression</option>
+        <option value="decision">Decision Tree</option>
+        <option value="naive">Naive Bayes</option>
+        <option value="neuronal">Neuronal Network</option>
+        <option value="kmeans">K-Means</option>
+        <option value="knearest">K-Nearest Neighbor</option>
+    </select>
+    <br><br>
+
+    <label id="lblCargarCSV">Cargar archivo para entrenar modelo</label>
+    <input type="file" id="cargarCSV" accept=".csv" />
+    <br><br>
+
+    <input style="display: none;" type="number" id="numeroUno"/>
+    <input style="display: none;" type="number" id="numeroDos"/>
+
+    <button id="entrenarModelo">Entrenar Modelo</button>
+    <button id="prediccion">Prediccion</button>
+    <button id="crearGrafica">Mostrar Gráfica</button>
+    
+    <p id="log" style="width: 100%"></p>
+    <br>
+    <div id="chart_div" style="width: 900px; height: 500px;"></div>
+
+    <script type="text/javascript">
+        let dataset = null;
+        let model = null;
+        let ejeX = [];
+        let ejeY = [];
+        let yPredict = [];
+        let yPredict2 = [];
+        let yPredict3 = [];
+        let listaNeuronal = [];
+        let prediccion = [];
+        let encabezado = [];
+        let matriz;
+
+        const selectElement = document.getElementById('modelSelect');
+        selectElement.addEventListener('change', (event) => {
+            dataset = null;
+            model = null;
+            ejeX = [];
+            ejeY = [];
+            listaNeuronal = []
+            prediccion = [];
+            document.getElementById("log").innerHTML = "";
+            document.getElementById('cargarCSV').value = null;
+            document.getElementById('cargarCSV').style.display = 'block';
+                document.getElementById('lblCargarCSV').style.display = 'block';
+            if (event.target.value === "decision") {
+                document.getElementById('cargarCSV').style.display = 'none';
+                document.getElementById('lblCargarCSV').style.display = 'none';
+            } else if (event.target.value === "neuronal") {
+                document.getElementById('numeroUno').style.display = 'block';
+                document.getElementById('numeroDos').style.display = 'block';
+            } else {
+                document.getElementById('cargarCSV').style.display = 'block';
+                document.getElementById('lblCargarCSV').style.display = 'block';
+                document.getElementById('numeroUno').style.display = 'none';
+                document.getElementById('numeroDos').style.display = 'none';
+            }
+        });
+
+        document.getElementById('entrenarModelo').addEventListener('click', async () => {
+            const fileInput = document.getElementById('cargarCSV');
+            const file = fileInput.files[0];
+            
+            if (file) {
+                const text = await file.text();
+                dataset = parseCSV(text);
+                processDataset(dataset);
+                alert("Modelo entrenado con éxito.");
+            } else {
+                alert("Por favor, carga un archivo CSV.");
+            }
+        });
+        
+        function parseCSV(data) {
+            const rows = data.trim().split('\n');
+            return rows.map(row => row.split(','));
+        }
+
+        function processDataset(data) {
+            const selectedModel = document.getElementById('modelSelect').value;
+            switch (selectedModel) {
+                case "linear":
+                    for (let i = 1; i < data.length; i++) { 
+                        const row = data[i];
+                        if (row.length >= 2) {
+                            ejeX.push(parseFloat(row[0]));
+                            ejeY.push(parseFloat(row[1]));
+                        }
+                    }
+                    return
+                case "polynomial":
+                    for (let i = 1; i < data.length; i++) { 
+                        const row = data[i];
+                        if (row.length >= 2) {
+                            ejeX.push(parseFloat(row[0]));
+                            ejeY.push(parseFloat(row[1]));
+                            prediccion.push(parseFloat(row[2]));
+                        }
+                    }
+                    return
+                    case "decision":
+                    
+                    return
+                case "naive":
+                    
+                    return
+                case "neuronal":
+                    for (let i = 1; i < data.length; i++) { 
+                        const row = data[i];
+                        listaNeuronal.push(parseInt(row[0]));
+                    }
+                    return
+                case "kmeans":
+                    
+                    return
+                case "knearest":
+                    
+                    return
+                default:
+                    return null;
+            }
+        }
+
+        document.getElementById('prediccion').addEventListener('click', () => {
+            const selectedModel = document.getElementById('modelSelect').value;
+            generarPrediccion(selectedModel);
+        });
+
+        function generarPrediccion(modelName) {
+            switch (modelName) {
+                case "linear":
+                    var linear = new LinearRegression()
+                    linear.fit(ejeX, ejeY)
+                    yPredict = linear.predict(ejeX)
+                    document.getElementById("log").innerHTML +='<br>Entreno eje X:   ' + ejeX + '<br><br>Entreno eje Y: ' + ejeY + '<br><br> Predicciopn: ' + yPredict
+                    return
+                case "polynomial":
+                    var polynomial = new PolynomialRegression();
+                    polynomial.fit(ejeX, ejeY, 2);
+                    yPredict = polynomial.predict(prediccion);
+                    r2 = polynomial.getError();
+                    polynomial.fit(ejeX, ejeY, 3);
+                    yPredict2 = polynomial.predict(prediccion);
+                    r22 = polynomial.getError();
+                    polynomial.fit(ejeX, ejeY, 4);
+                    yPredict3 = polynomial.predict(prediccion);
+                    r23 = polynomial.getError();
+                    for (let i = 0; i < prediccion.length; i++) {
+                        yPredict[i] = Number(yPredict[i].toFixed(2));
+                        yPredict2[i] = Number(yPredict2[i].toFixed(2));
+                        yPredict3[i] = Number(yPredict3[i].toFixed(2));
+                    }
+
+                    document.getElementById("log").innerHTML += 'Eje X: [' + ejeX + '] <br><br>';
+                    document.getElementById("log").innerHTML += 'Eje Y: [' + ejeY + '] <br><br>';
+                    document.getElementById("log").innerHTML += 'Prediccion en eje X: [' + prediccion + '] <br><br>';
+                    document.getElementById("log").innerHTML += 'Grado 2 de prediccion eje Y: [' + yPredict + '] <br><br>';
+                    document.getElementById("log").innerHTML += 'Grado 3 de prediccion eje Y: [' + yPredict2 + '] <br><br>';
+                    document.getElementById("log").innerHTML += 'Grado 4 de prediccion eje Y: [' + yPredict3 + '] <br><br>';
+                    document.getElementById("log").innerHTML += 'R^2 para predicion de Grado 2: ' + Number(r2.toFixed(2)) + '<br><br>';
+                    document.getElementById("log").innerHTML += 'R^2 para predicion de Grado 3: ' + Number(r22.toFixed(2)) + '<br><br>';
+                    document.getElementById("log").innerHTML += 'R^2 para predicion de Grado 4: ' + Number(r23.toFixed(2)) + '<br><br>';
+                    return
+                case "decision":
+                    
+                    return
+                case "naive":
+                    
+                    return
+                case "neuronal":
+                    let design = [2, 4, 3, 2, 4, 2];
+                    //n1 > n2 [n1, n2]
+                    let brain = new NeuralNetwork(listaNeuronal);
+                    for (let x = 0; x < 2; x++) {
+                        for (let i = 0; i < 10000; i++) {
+                            let num1 = Math.random(), num2 = Math.random();
+                            brain.Entrenar([num1, num2], (num1 > num2 ? [1, 0] : [0, 1]));
+                        }
+                        if (x == 0) { document.getElementById("log").innerHTML += String("n1 > n2: [" + document.getElementById("numeroUno").value + "," + document.getElementById("numeroDos").value + "]: " + brain.Predecir([1, 6])); }
+                        else { document.getElementById("log").innerHTML += String("<br>n1 > n2: [" + document.getElementById("numeroDos").value + "," + document.getElementById("numeroUno").value + "]: " + brain.Predecir([6, 1])); }
+                    }
+                    //n1 < n2 [n1, n2]
+                    brain = new NeuralNetwork(listaNeuronal);
+                    for (let x = 0; x < 2; x++) {
+                        for (let i = 0; i < 10000; i++) {
+                            let num1 = Math.random(), num2 = Math.random();
+                            brain.Entrenar([num1, num2], (num1 < num2 ? [1, 0] : [0, 1]));
+                        }
+                        if (x == 0) { document.getElementById("log").innerHTML += String("<br>n1 < n2: [" + document.getElementById("numeroUno").value + "," + document.getElementById("numeroDos").value + "]: " + brain.Predecir([23, 17])); }
+                        else { document.getElementById("log").innerHTML += String("<br>n1 < n2: [" + document.getElementById("numeroDos").value + "," + document.getElementById("numeroUno").value + "]: " + brain.Predecir([12, 25])); }
+                    }
+                    return
+                case "kmeans":
+                    
+                    return
+                case "knearest":
+                    
+                    return
+                default:
+                    return null;
+            }
+        }
+
+        document.getElementById('crearGrafica').addEventListener('click', () => {
+            const selectedModel = document.getElementById('modelSelect').value;
+            if (selectedModel === "linear") {
+                google.charts.load('current', {'packages':['corechart']});
+                google.charts.setOnLoadCallback(graficarLineal);
+            } else if (selectedModel === "polynomial") {
+                google.charts.load('current', { 'packages': ['corechart'] });
+                google.charts.setOnLoadCallback(graficarPolinomial);
+            } else if (selectedModel === "polynomial") {
+
+            }
+        });
+
+        function graficarLineal() {
+            var data = google.visualization.arrayToDataTable(joinArrays('x',ejeX,'yTrain',ejeY,'yPredict',yPredict));
+            var options = {
+                seriesType : 'scatter',
+                series: {1: {type: 'line'}}
+            };  
+            var chart = new google.visualization.ComboChart(document.getElementById('chart_div'));
+            chart.draw(data, options);         
+        }          
+
+        function graficarPolinomial() {
+            var data = google.visualization.arrayToDataTable(joinArrays('x', ejeX, 'Training', ejeY, 'Prediction Degree 2', yPredict, 'Prediction Degree 3', yPredict2, 'Prediction Degree 4', yPredict3));
+            var options = {
+                seriesType: 'scatter',
+                series: {
+                    1: { type: 'line' },
+                    2: { type: 'line' },
+                    3: { type: 'line' }
+                }
+            };
+            var chart = new google.visualization.ComboChart(document.getElementById('chart_div'));
+            chart.draw(data, options);
+        }
+        
+    </script>
+
+    <script type="text/javascript" src="tytus.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</body>
+</html>
