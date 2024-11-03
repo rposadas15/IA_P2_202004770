@@ -243,16 +243,23 @@
         }          
 
         function graficarPolinomial() {
-            var data = google.visualization.arrayToDataTable(joinArrays('x', ejeX, 'Training', ejeY, 'Prediction Degree 2', yPredict, 'Prediction Degree 3', yPredict2, 'Prediction Degree 4', yPredict3));
+            var valoresGrafica = [];
+            valoresGrafica.push(["X", "Y", "Grado 2", "Grado 3", "Grado 4"]);
+            for (let i = 0; i < ejeX.length; i++) {
+                valoresGrafica.push([
+                    ejeX[i],
+                    ejeY[i],
+                    yPredict[i],
+                    yPredict2[i],
+                    yPredict3[i],
+                ]);
+            }
+            var data = google.visualization.arrayToDataTable(valoresGrafica);
             var options = {
-                seriesType: 'scatter',
-                series: {
-                    1: { type: 'line' },
-                    2: { type: 'line' },
-                    3: { type: 'line' }
-                }
+                title: 'Regresion Polinomial',
+                curveType: 'function'
             };
-            var chart = new google.visualization.ComboChart(document.getElementById('chart_div'));
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
             chart.draw(data, options);
         }
         
